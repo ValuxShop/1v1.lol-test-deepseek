@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 1v1.lol - Classic Recreation</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Main Menu -->
+    <div id="mainMenu" class="menu active">
+        <div class="menu-container">
+            <div class="logo">
+                <h1>1v1.lol</h1>
+                <p class="subtitle">Classic Edition</p>
+            </div>
+            
+            <div class="menu-buttons">
+                <button id="playButton" class="menu-btn primary">
+                    <i class="fas fa-play"></i> PLAY
+                </button>
+                <button id="practiceButton" class="menu-btn">
+                    <i class="fas fa-robot"></i> PRACTICE
+                </button>
+                <button id="settingsButton" class="menu-btn">
+                    <i class="fas fa-cog"></i> SETTINGS
+                </button>
+            </div>
+            
+            <div class="game-modes">
+                <div class="mode-card active" data-mode="1v1">
+                    <div class="mode-icon">1v1</div>
+                    <h3>1v1 Battle</h3>
+                    <p>Classic duel mode</p>
+                </div>
+                <div class="mode-card" data-mode="boxfight">
+                    <div class="mode-icon">BF</div>
+                    <h3>Box Fight</h3>
+                    <p>Close quarters combat</p>
+                </div>
+                <div class="mode-card" data-mode="zonewars">
+                    <div class="mode-icon">ZW</div>
+                    <h3>Zone Wars</h3>
+                    <p>Shrinking zone</p>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <div class="player-stats">
+                    <div class="stat">
+                        <span class="stat-value">0</span>
+                        <span class="stat-label">Wins</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">0</span>
+                        <span class="stat-label">Kills</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">0</span>
+                        <span class="stat-label">Matches</span>
+                    </div>
+                </div>
+                <div class="controls-hint">
+                    <p><span class="key">WASD</span> Move • <span class="key">SPACE</span> Jump • <span class="key">F</span> Build</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Container -->
+    <div id="gameContainer" class="hidden">
+        <canvas id="gameCanvas"></canvas>
+        
+        <!-- In-Game HUD -->
+        <div id="hud">
+            <div class="hud-top">
+                <div class="health-bar">
+                    <div class="health-fill" id="healthFill"></div>
+                    <span class="health-text" id="healthText">100</span>
+                </div>
+                <div class="shield-bar">
+                    <div class="shield-fill" id="shieldFill"></div>
+                    <span class="shield-text" id="shieldText">100</span>
+                </div>
+                <div class="kill-counter">
+                    <i class="fas fa-skull"></i>
+                    <span id="killCount">0</span>
+                </div>
+            </div>
+            
+            <div class="hud-bottom">
+                <div class="weapon-slots">
+                    <div class="weapon-slot active" data-slot="1">
+                        <div class="weapon-icon">AR</div>
+                        <div class="ammo-count">30/200</div>
+                    </div>
+                    <div class="weapon-slot" data-slot="2">
+                        <div class="weapon-icon">SG</div>
+                        <div class="ammo-count">8/32</div>
+                    </div>
+                    <div class="weapon-slot" data-slot="3">
+                        <div class="weapon-icon">SMG</div>
+                        <div class="ammo-count">30/150</div>
+                    </div>
+                    <div class="weapon-slot" data-slot="4">
+                        <div class="weapon-icon">SNIP</div>
+                        <div class="ammo-count">1/10</div>
+                    </div>
+                    <div class="weapon-slot" data-slot="5">
+                        <div class="build-icon">
+                            <i class="fas fa-cube"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="build-material">
+                    <div class="material wood">
+                        <div class="material-icon">W</div>
+                        <div class="material-count">999</div>
+                    </div>
+                    <div class="material brick">
+                        <div class="material-icon">B</div>
+                        <div class="material-count">999</div>
+                    </div>
+                    <div class="material metal">
+                        <div class="material-icon">M</div>
+                        <div class="material-count">999</div>
+                    </div>
+                </div>
+                
+                <div class="build-menu">
+                    <div class="build-option active" data-build="wall">
+                        <div class="build-preview wall"></div>
+                        <span>Wall (F1)</span>
+                    </div>
+                    <div class="build-option" data-build="ramp">
+                        <div class="build-preview ramp"></div>
+                        <span>Ramp (F2)</span>
+                    </div>
+                    <div class="build-option" data-build="floor">
+                        <div class="build-preview floor"></div>
+                        <span>Floor (F3)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Crosshair -->
+        <div id="crosshair">
+            <div class="crosshair-dot"></div>
+            <div class="crosshair-line top"></div>
+            <div class="crosshair-line bottom"></div>
+            <div class="crosshair-line left"></div>
+            <div class="crosshair-line right"></div>
+        </div>
+        
+        <!-- Kill Feed -->
+        <div id="killFeed"></div>
+        
+        <!-- Game Menu -->
+        <div id="gameMenu" class="hidden">
+            <div class="game-menu-content">
+                <h2>Game Paused</h2>
+                <button id="resumeButton" class="game-menu-btn">Resume</button>
+                <button id="restartButton" class="game-menu-btn">Restart</button>
+                <button id="quitButton" class="game-menu-btn">Quit to Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="hidden">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <h2>Loading Game...</h2>
+            <div class="loading-bar">
+                <div class="loading-progress" id="loadingProgress"></div>
+            </div>
+            <p class="loading-tip">Tip: Press F to switch to build mode quickly</p>
+        </div>
+    </div>
+
+    <script src="game/Input.js"></script>
+    <script src="game/Physics.js"></script>
+    <script src="game/Player.js"></script>
+    <script src="game/Weapon.js"></script>
+    <script src="game/BuildSystem.js"></script>
+    <script src="game/AI.js"></script>
+    <script src="game/Renderer.js"></script>
+    <script src="game/UI.js"></script>
+    <script src="game/Game.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
