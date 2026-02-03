@@ -116,4 +116,114 @@ class Physics {
         const bounds = player.getBounds();
         
         // Apply gravity
-       
+        if (!player.isGrounded) {
+            velocity.y -= this.gravity * deltaTime;
+        }
+        
+        // Test new position
+        const testBounds = {
+            min: {
+                x: bounds.min.x + velocity.x * deltaTime,
+                y: bounds.min.y + velocity.y * deltaTime,
+                z: bounds.min.z + velocity.z * deltaTime
+            },
+            max: {
+                x: bounds.max.x + velocity.x * deltaTime,
+                y: bounds.max.y + velocity.y * deltaTime,
+                z: bounds.max.z + velocity.z * deltaTime
+            }
+        };
+        
+        // Check against buildings
+        let collision = false;
+        player.isGrounded = false;
+        
+        for (const building of this.buildings) {
+            if (this.checkAABBCollision(testBounds, building.bounds)) {
+                // X collision
+                if (velocity.x !== 0) {
+                    const xBounds = {
+                        min: { ...bounds.min, x: testBounds.min.x },
+                        max: { ...bounds.max, x: testBounds.max.x }
+                    };
+                    
+                    if (this.checkAABBCollision(xBounds, building.bounds)) {
+                        velocity.x = 0;
+                    }
+                }
+                
+                // Y collision
+                if (velocity.y !== 0) {
+                    const yBounds = {
+                        min: { ...bounds.min, y: testBounds.min.y },
+                        max: { ...bounds.max, y: testBounds.max.y }
+                    };
+                    
+                    if (this.checkAABBCollision(yBounds, building.bounds)) {
+                        if (velocity.y < 0) {
+                            player.isGrounded = true;
+                            position.y = building.bounds.max.y + 0.01;
+                        }
+                        velocity.y = 0;
+                    }
+                }
+                
+                // Z collision
+                if (velocity.z !== 0) {
+                    const zBounds = {
+                        min: { ...bounds.min, z: testBounds.min.z },
+                        max: { ...bounds.max, z: testBounds.max.z }
+                    };
+                    
+                    if (this.checkAABBCollision(zBounds, building.bounds)) {
+                        velocity.z = 0;
+                    }
+                }
+                
+                collision = true;
+            }
+        }
+        
+        // World bounds collision
+        if (testBounds.min.x < this.worldBounds.min.x) {
+            velocity.x = 0;
+            position.x = this.worldBounds.min.x + player.radius;
+        }
+        if (testBounds.max.x > this.worldBounds.max.x) {
+            velocity.x = 0;
+            position.x = this.worldBounds.max.x - player.radius;
+        }
+        if (testBounds.min.z < this.worldBounds.min.z) {
+            velocity.z = 0;
+            position.z = this.worldBounds.min.z + player.radius;
+        }
+        if (testBounds.max.z > this.worldBounds.max.z) {
+            velocity.z = 0;
+            position.z = this.worldBounds.max.z - player.radius;
+        }
+        
+        return collision;
+    }
+    
+    addBuilding(building) {
+        this.buildings.push(building);
+    }
+    
+    removeBuilding(building) {
+        const index = this.buildings.indexOf(building);
+        if (index > -1) {
+            this.buildings.splice(index, 1);
+        }
+    }
+    
+    addCollider(collider) {
+        this.colliders.push(collider);
+    }
+    
+    clear() {
+        this.colliders = [];
+        this.buildings = [];
+    }
+}
+
+export default Physics;
